@@ -16,7 +16,7 @@ public class HealthSystem : MonoBehaviour
     void OnEnable() {
         _heart = 0;
         foreach (Image h in hearts) h.color = Color.white;
-        EventBus<MissEventHealthUpdate>.Subscribe(new EventProcessor<MissEventHealthUpdate>(OnMiss));
+        EventBus<MissEventHealthUpdate>.Subscribe(_onMissProcessor);
     }
     void OnDisable() {
         EventBus<MissEventHealthUpdate>.Unsubscribe(_onMissProcessor);

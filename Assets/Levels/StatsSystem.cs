@@ -13,15 +13,14 @@ namespace Levels
         private EventProcessor<HitEvent> _onHitProcessor;
         private EventProcessor<MissEventStatsUpdate> _onMissProcessor;
         void Awake() {
-            comboText.text = "";
-            scoreText.text = "";
-            _onHitProcessor = new EventProcessor<HitEvent>(IncrementCombo);
-            _onHitProcessor.Add(IncreaseScore);
+            _onHitProcessor = new EventProcessor<HitEvent>(IncreaseScore);
             _onMissProcessor = new EventProcessor<MissEventStatsUpdate>(ResetCombo);
         }
         void OnEnable() {
             _combo = 0;
             _score = 0;
+            comboText.text = "";
+            scoreText.text = "";
             EventBus<MissEventStatsUpdate>.Subscribe(_onMissProcessor);
             EventBus<HitEvent>.Subscribe(_onHitProcessor);
         }
@@ -34,13 +33,11 @@ namespace Levels
             _combo = 0;
             comboText.text = $"{_combo}x";
         }
-        void IncrementCombo() {
-            _combo++;
-            comboText.text = $"{_combo}x";
-        }
+        
         void IncreaseScore(HitEvent hitEventProps) {
-            _score += hitEventProps.Gained;
+            _score += ++_combo * hitEventProps.Gained;
             scoreText.text = _score.ToString();
+            comboText.text = $"{_combo}x";
         }
     }
 }
