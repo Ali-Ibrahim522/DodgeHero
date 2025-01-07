@@ -1,13 +1,12 @@
 ﻿using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Levels
 {
     [System.Serializable]
     public class AttackChallenge
     {
-        [SerializeField] [CanBeNull] private Image arrow;
+        [SerializeField] [CanBeNull] private SpriteRenderer arrow;
         [SerializeField] private KeyCode key;
         [SerializeField] [CanBeNull] private Sprite pre;
         [SerializeField] [CanBeNull] private Sprite post;
@@ -18,17 +17,17 @@ namespace Levels
 
         public bool IsChallengePressed() => Input.GetKeyDown(key);
 
-        public void SetChallengeProposed(Image attack) {
+        public void SetChallengeProposed(SpriteRenderer attack) {
             if (pre) attack.sprite = pre;
             if (arrow) arrow.color = Color.cyan;
         }
 
-        public void SetChallengeHit(Image attack) {
+        public void SetChallengeHit(SpriteRenderer attack) {
             if (post) attack.sprite = post;
             if (arrow) arrow.color = Color.green;
         }
 
-        public void SetChallengeMissed(Image attack) {
+        public void SetChallengeMissed(SpriteRenderer attack) {
             if (post) attack.sprite = post;
             if (arrow) arrow.color = Color.red;
         }

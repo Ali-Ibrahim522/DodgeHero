@@ -1,7 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Levels
 {
@@ -11,9 +11,11 @@ namespace Levels
         private float _elapsed;
         private float _window;
         private bool _complete;
-        public Image attack;
+        private bool _waiting;
+        public SpriteRenderer attack;
         public List<AttackChallenge> challenges;
         void OnEnable() {
+            _waiting = false;
             _challengeCount = 0;
             SetChallengeProposed();
         }
@@ -26,7 +28,7 @@ namespace Levels
             else CheckingForInput();
         }
         
-        // y = 1/√(.01x + 1/9)
+        // y = 1/√(.01x + 1/3)
         void SetNewWindow() => _window = 1 / Mathf.Sqrt(.01f * _challengeCount + (1 / 3f));
 
         private void WaitForWindow() {
@@ -37,6 +39,7 @@ namespace Levels
         }
 
         private void CheckingForInput() {
+            if (_waiting) return;
             if (_elapsed < _window) {
                 bool good = false;
                 for (int i = 0; i < challenges.Count; i++) {
@@ -44,15 +47,14 @@ namespace Levels
                         if (_activeChallenge == i) {
                             good = true;
                         } else {
-                            SetChallengeMissed();
+                            StartCoroutine(SetChallengeMissed(false));
                             return;
                         }
                     }
                 }
                 if (good) SetChallengeHit();
             } else {
-                _window += .5f;
-                SetChallengeMissed();
+                StartCoroutine(SetChallengeMissed(true));
             }
         }
         
@@ -78,11 +80,14 @@ namespace Levels
             EventBus<HitEvent>.Publish(new HitEvent(performed));
         }
 
-        void SetChallengeMissed() {
+        IEnumerator SetChallengeMissed(bool wait) {
+            _waiting = true;
             challenges[_activeChallenge].SetChallengeMissed(attack);
+            if (wait) yield return new WaitForSeconds(.75f);
             _complete = true;
             EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
+            _waiting = false;
         }
     }
 }

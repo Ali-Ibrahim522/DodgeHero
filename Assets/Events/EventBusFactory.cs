@@ -11,7 +11,10 @@ namespace Events {
             typeof(DeathEvent),
             typeof(HitEvent),
             typeof(MissEventHealthUpdate),
-            typeof(MissEventStatsUpdate)
+            typeof(MissEventStatsUpdate),
+            typeof(LevelSelectDiffChangeEvent),
+            typeof(LevelSelectHeaderChangeEvent),
+            typeof(TargetHitEvent)
         };
         public static IReadOnlyList<Type> EventBusTypes { get; set; }
         
