@@ -11,11 +11,9 @@ namespace Levels
         private float _elapsed;
         private float _window;
         private bool _complete;
-        private bool _waiting;
         public SpriteRenderer attack;
         public List<AttackChallenge> challenges;
         void OnEnable() {
-            _waiting = false;
             _challengeCount = 0;
             SetChallengeProposed();
         }
@@ -39,7 +37,6 @@ namespace Levels
         }
 
         private void CheckingForInput() {
-            if (_waiting) return;
             if (_elapsed < _window) {
                 bool good = false;
                 for (int i = 0; i < challenges.Count; i++) {
@@ -47,14 +44,14 @@ namespace Levels
                         if (_activeChallenge == i) {
                             good = true;
                         } else {
-                            StartCoroutine(SetChallengeMissed(false));
+                            SetChallengeMissed(false);
                             return;
                         }
                     }
                 }
                 if (good) SetChallengeHit();
             } else {
-                StartCoroutine(SetChallengeMissed(true));
+                SetChallengeMissed(true);
             }
         }
         
@@ -80,14 +77,12 @@ namespace Levels
             EventBus<HitEvent>.Publish(new HitEvent(performed));
         }
 
-        IEnumerator SetChallengeMissed(bool wait) {
-            _waiting = true;
-            challenges[_activeChallenge].SetChallengeMissed(attack);
-            if (wait) yield return new WaitForSeconds(.75f);
+        void SetChallengeMissed(bool ranOutOfTime) {
             _complete = true;
-            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
+            if (ranOutOfTime) _window += .75f;
+            challenges[_activeChallenge].SetChallengeMissed(attack);
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-            _waiting = false;
+            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate(_window - _elapsed));
         }
     }
 }

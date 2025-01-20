@@ -1,24 +1,36 @@
-﻿using System.Collections.Generic;
-using Events;
+﻿using Events;
 using UnityEngine;
 
 namespace LevelSelect {
     public class LevelHeader : MonoBehaviour {
-        [SerializeField] private List<LevelDiff> levelDiffs;
+        [SerializeField] private GameObject levelDiffs;
+        [SerializeField] private bool isDefault;
+        private bool _selected;
         private EventProcessor<LevelSelectHeaderChangeEvent> _onLevelSelectHeaderChangeEventProcessor;
 
         public void Awake() => _onLevelSelectHeaderChangeEventProcessor = new EventProcessor<LevelSelectHeaderChangeEvent>(DisableLevelDiffs);
-        
+
+        public void OnEnable() {
+            _selected = false;
+            if (isDefault) OnLevelHeaderClicked();
+        }
+
+        public void OnDisable() {
+            if (_selected) DisableLevelDiffs();
+        }
+
         public void OnLevelHeaderClicked() {
+            if (_selected) return;
             EventBus<LevelSelectHeaderChangeEvent>.Publish(new LevelSelectHeaderChangeEvent());
             EventBus<LevelSelectHeaderChangeEvent>.Subscribe(_onLevelSelectHeaderChangeEventProcessor);
-            foreach (LevelDiff levelDiff in levelDiffs) levelDiff.DisplayLevelDiff();
-            levelDiffs[0].OnDiffSelected();
+            levelDiffs.SetActive(true);
+            _selected = true;
         }
         
         public void DisableLevelDiffs() {
             EventBus<LevelSelectHeaderChangeEvent>.Unsubscribe(_onLevelSelectHeaderChangeEventProcessor);
-            foreach (LevelDiff levelDiff in levelDiffs) levelDiff.DisplayLevelDiff();
+            levelDiffs.SetActive(false);
+            _selected = false;
         }
     }
 }

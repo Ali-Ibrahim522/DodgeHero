@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
@@ -22,9 +23,16 @@ namespace Levels {
             EventBus<MissEventHealthUpdate>.Unsubscribe(_onMissProcessor);
         }
 
-        public void OnMiss() {
-            hearts[_heart++].color = Color.red;
-            if (_heart == hearts.Count) EventBus<DeathEvent>.Publish(new DeathEvent());
+        public void OnMiss(MissEventHealthUpdate missEventHealthUpdateProps) {
+            if (_heart < hearts.Count) {
+                hearts[_heart++].color = Color.red;
+                if (_heart == hearts.Count) StartCoroutine(WaitedDeath(missEventHealthUpdateProps.DeathWait));
+            }
+        }
+
+        IEnumerator WaitedDeath(float waitDeath) {
+            yield return new WaitForSeconds(waitDeath);
+            EventBus<DeathEvent>.Publish(new DeathEvent());
         }
     }
 }

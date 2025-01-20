@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class GameStateManager : MonoBehaviour
@@ -8,7 +7,9 @@ public class GameStateManager : MonoBehaviour
     public enum GameState {
         Start,
         LevelSelect,
-        Level,
+        ScarecrowEasy,
+        ScarecrowMedium,
+        ScarecrowHard
     }
 
     private GameState _currentState;

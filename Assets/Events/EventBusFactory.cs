@@ -14,7 +14,10 @@ namespace Events {
             typeof(MissEventStatsUpdate),
             typeof(LevelSelectDiffChangeEvent),
             typeof(LevelSelectHeaderChangeEvent),
-            typeof(TargetHitEvent)
+            typeof(TargetHitEvent),
+            typeof(SpawnCrowEvent),
+            typeof(CrowDeathEvent),
+            typeof(CrowPerchingEvent)
         };
         public static IReadOnlyList<Type> EventBusTypes { get; set; }
         
