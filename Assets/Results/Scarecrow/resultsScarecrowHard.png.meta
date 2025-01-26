@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      resultsScarecrowHard_0: 1816429317369455993
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

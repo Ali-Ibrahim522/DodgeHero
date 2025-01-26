@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
-using Application = UnityEngine.WSA.Application;
 using Random = UnityEngine.Random;
 
 public class CrowSystem : MonoBehaviour {

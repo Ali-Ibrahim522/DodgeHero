@@ -29,6 +29,7 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private float transitionSpeed;
     private Dictionary<GameState, GameObject> _views;
     private GameState _lastLevelState;
+    private readonly WaitForSeconds _wait = new (.001f);
     
     private void Awake() {
         if (Instance != null && Instance != this) Destroy(this); 
@@ -57,8 +58,8 @@ public class GameStateManager : MonoBehaviour
         color.a = 1f;
         do {
             transitionImage.color = color;
-            color.a -= .01f;
-            yield return new WaitForSeconds(.00001f);
+            color.a -= .025f;
+            yield return _wait;
         } while (color.a >= 0f);
         color.a = 0f;
         transitionImage.color = color;
@@ -69,8 +70,8 @@ public class GameStateManager : MonoBehaviour
         color.a = 0f;
         do {
             transitionImage.color = color;
-            color.a += .01f;
-            yield return new WaitForSeconds(.00001f);
+            color.a += .025f;
+            yield return _wait;
         } while (color.a <= 1f);
         yield return new WaitForSeconds(.2f);
     }
