@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 64bca8c6f6b6da5438d69d07a709968b
+guid: 2f866b9698d6fa14bb76a125058dfd04
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1468996630261448857
-    second: nomadSplashWIP_0
+      213: 8173724206646071653
+    second: startBtn_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nomadSplashWIP_0
+      name: startBtn_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1920
-        height: 1080
+        x: 1126
+        y: 17
+        width: 324
+        height: 174
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 76f350d09531d9be0800000000000000
-      internalID: -1468996630261448857
+      spriteID: 56196251cd6ee6170800000000000000
+      internalID: 8173724206646071653
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      nomadSplashWIP_0: -1468996630261448857
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

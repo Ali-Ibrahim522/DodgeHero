@@ -16,8 +16,11 @@ namespace Events {
             typeof(LevelSelectHeaderChangeEvent),
             typeof(TargetHitEvent),
             typeof(SpawnCrowEvent),
-            typeof(CrowDeathEvent),
-            typeof(CrowPerchingEvent)
+            typeof(CrowPerchingEvent),
+            typeof(CrowMissedEvent),
+            typeof(LoadResultsDataEvent),
+            typeof(DeathEventStatsUpdate),
+            typeof(CrowScaredEvent)
         };
         public static IReadOnlyList<Type> EventBusTypes { get; set; }
         

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Events;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class CrowChallenge : MonoBehaviour {
     private Vector3 _scaredStart;
     private Vector3 _scaredEnd;
     private EventProcessor<DeathEvent> _onDeathEventProcessor;
+    private EventProcessor<CrowScaredEvent> _onCrowScaredEventProcessor;
+    private readonly float _3LN10 = 3 * Mathf.Log(10);
     
     private enum CrowState {
         Scared,
@@ -28,18 +31,25 @@ public class CrowChallenge : MonoBehaviour {
         Destroyed
     }
 
-    void Awake() => _onDeathEventProcessor = new EventProcessor<DeathEvent>(DestroyCrow);
+    void Awake() {
+        _onDeathEventProcessor = new EventProcessor<DeathEvent>(DestroyCrow);
+        _onCrowScaredEventProcessor = new EventProcessor<CrowScaredEvent>(OnCrowScared);
+    }
 
-    void OnEnable() => EventBus<DeathEvent>.Subscribe(_onDeathEventProcessor);
+    void OnEnable() {
+        EventBus<DeathEvent>.Subscribe(_onDeathEventProcessor);
+    }
     
-    void OnDisable() => EventBus<DeathEvent>.Unsubscribe(_onDeathEventProcessor);
+    void OnDisable() => EventBus<CrowScaredEvent>.Unsubscribe(_onCrowScaredEventProcessor, _channel);
+
+    private void OnDestroy() => EventBus<DeathEvent>.Unsubscribe(_onDeathEventProcessor);
 
     void Update() {
         _elapsed += Time.deltaTime * _speed;
         switch (_crowState) {
             case CrowState.Scared:
                 if (_elapsed < 1f) transform.position = Vector3.Lerp(_scaredStart, _scaredEnd, _elapsed);
-                else DestroyCrow();
+                else Destroy(gameObject);
                 break;
             case CrowState.Swooping:
                 if (perchAt <= _elapsed) StartCrowPerching();
@@ -52,8 +62,15 @@ public class CrowChallenge : MonoBehaviour {
                 break;
         }
     }
-    
-    void DestroyCrow() => Destroy(gameObject);
+
+    void DestroyCrow() {
+        if (_crowState != CrowState.Destroyed) {
+            EventBus<CrowMissedEvent>.Publish(new CrowMissedEvent {
+                Channel = _channel,
+            });
+        }
+        Destroy(gameObject);
+    }
 
     public void InitCrow(int channel, CubicPath crowPath, float speed, Quaternion crowRotation) {
         _crowRotation = crowRotation;
@@ -66,30 +83,42 @@ public class CrowChallenge : MonoBehaviour {
         crowRender.flipX = _crowPath.GetStart().x < _crowPath.GetDestination().x;
         crowRender.sprite = flySprite;
         _elapsed = 0;
+        EventBus<CrowScaredEvent>.Subscribe(_onCrowScaredEventProcessor, _channel);
         _crowState = CrowState.Swooping;
     }
 
     private IEnumerator StartMissedCrow() {
         _crowState = CrowState.Destroyed;
-        EventBus<CrowMissedEvent>.Publish(new CrowMissedEvent(_channel));
-        EventBus<CrowDeathEvent>.Publish(new CrowDeathEvent(), _channel);
+        EventBus<CrowMissedEvent>.Publish(new CrowMissedEvent {
+            Channel = _channel,
+        });
+        EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
+            DeathWait = .75f
+        });
+        EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
         crowRender.color = Color.red;
         yield return new WaitForSeconds(.75f);
         Destroy(gameObject);
     }
+
+    private float CalculateDestTime() => _3LN10 / (9 * _flySpeed);
 
     private void StartCrowPerching() {
         _crowState = CrowState.Perching;
         transform.rotation = _crowRotation;
         crowRender.sprite = perchSprite;
         crowRender.color = Color.cyan;
-        EventBus<CrowPerchingEvent>.Publish(new CrowPerchingEvent(_channel, transform, OnCrowScared, _crowPath.GetDestination()));
+        EventBus<CrowPerchingEvent>.Publish(new CrowPerchingEvent {
+            Channel = _channel,
+            DestTime = CalculateDestTime(),
+        });
     }
 
-    public void OnCrowScared() {
+    private void OnCrowScared() {
         int performed = (int)(100 * (1 + (1 - (_elapsed - .7f) / .3f)));
-        EventBus<HitEvent>.Publish(new HitEvent(performed));
-        EventBus<CrowDeathEvent>.Publish(new CrowDeathEvent(), _channel);
+        EventBus<HitEvent>.Publish(new HitEvent {
+            Gained = performed
+        });
         crowRender.color = Color.green;
         transform.rotation = new Quaternion(0, 0, 0, 0);
         _crowState = CrowState.Scared;

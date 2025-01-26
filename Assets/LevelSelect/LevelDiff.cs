@@ -22,7 +22,10 @@ namespace LevelSelect {
         
         public void OnDiffSelected() {
             if (_selected) return;
-            EventBus<LevelSelectDiffChangeEvent>.Publish(new LevelSelectDiffChangeEvent(levelPreview, levelDiffState));
+            EventBus<LevelSelectDiffChangeEvent>.Publish(new LevelSelectDiffChangeEvent {
+                SelectedLevelPreview = levelPreview,
+                SelectedGameState = levelDiffState
+            });
             EventBus<LevelSelectDiffChangeEvent>.Subscribe(_onLevelSelectDiffChange);
             Vector2 newButtonPos = levelPreviewRect.anchoredPosition;
             newButtonPos.x -= 45;

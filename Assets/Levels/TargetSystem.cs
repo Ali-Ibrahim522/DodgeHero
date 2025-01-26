@@ -69,7 +69,9 @@ namespace Levels {
         void WaitingCheckForClick() {
             if (Input.GetMouseButtonDown(0) && !Physics2D.GetRayIntersection(_camera.ScreenPointToRay(Input.mousePosition)).collider) {
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate(.75f));
+                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
+                    DeathWait = .75f
+                });
             }
         }
 
@@ -94,7 +96,9 @@ namespace Levels {
         IEnumerator SetTargetMissed(float waitTime = .75f) {
             challenges[_activeChallenge].SetTargetMissed();
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate(waitTime));
+            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
+                DeathWait = waitTime
+            });
             yield return new WaitForSeconds(waitTime);
             _targetState = TargetState.WaitingToFinish;
             
@@ -103,7 +107,9 @@ namespace Levels {
         void OnTargetHit() {
             _targetState = TargetState.WaitingToFinish;
             int performed = (int)(100 * (1 + (1 - _elapsed / _window)));
-            EventBus<HitEvent>.Publish(new HitEvent(performed));
+            EventBus<HitEvent>.Publish(new HitEvent {
+                Gained = performed
+            });
         }
         
     }

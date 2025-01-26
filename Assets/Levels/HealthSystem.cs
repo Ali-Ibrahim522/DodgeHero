@@ -26,7 +26,10 @@ namespace Levels {
         public void OnMiss(MissEventHealthUpdate missEventHealthUpdateProps) {
             if (_heart < hearts.Count) {
                 hearts[_heart++].color = Color.red;
-                if (_heart == hearts.Count) StartCoroutine(WaitedDeath(missEventHealthUpdateProps.DeathWait));
+                if (_heart == hearts.Count) {
+                    EventBus<DeathEventStatsUpdate>.Publish(new DeathEventStatsUpdate());
+                    StartCoroutine(WaitedDeath(missEventHealthUpdateProps.DeathWait));
+                }
             }
         }
 

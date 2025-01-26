@@ -74,7 +74,9 @@ namespace Levels
             int performed = (int)(100 * (1 + (1 - _elapsed / _window)));
             challenges[_activeChallenge].SetChallengeHit(attack);
             _complete = true;
-            EventBus<HitEvent>.Publish(new HitEvent(performed));
+            EventBus<HitEvent>.Publish(new HitEvent {
+                Gained = performed
+            });
         }
 
         void SetChallengeMissed(bool ranOutOfTime) {
@@ -82,7 +84,9 @@ namespace Levels
             if (ranOutOfTime) _window += .75f;
             challenges[_activeChallenge].SetChallengeMissed(attack);
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate(_window - _elapsed));
+            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
+                DeathWait = _window - _elapsed
+            });
         }
     }
 }

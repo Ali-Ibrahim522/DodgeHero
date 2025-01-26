@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 64bca8c6f6b6da5438d69d07a709968b
+guid: 962f16760f226e14a8351160cf045f66
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1468996630261448857
-    second: nomadSplashWIP_0
+      213: 2441893573347941629
+    second: resultsScarecrowMedium_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nomadSplashWIP_0
+      name: resultsScarecrowMedium_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 76f350d09531d9be0800000000000000
-      internalID: -1468996630261448857
+      spriteID: dfc96ba644953e120800000000000000
+      internalID: 2441893573347941629
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      nomadSplashWIP_0: -1468996630261448857
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

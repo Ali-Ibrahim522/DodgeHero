@@ -18,7 +18,10 @@ namespace LevelSelect {
         }
 
         public void OnPlayButton() {
-            if (_selectedGameState != GameStateManager.GameState.LevelSelect) GameStateManager.Instance.MoveToState(_selectedGameState);
+            if (_selectedGameState != GameStateManager.GameState.LevelSelect) {
+                GameStateManager.Instance.StoreLastLevelState(_selectedGameState);
+                GameStateManager.Instance.MoveToState(_selectedGameState);
+            }
         }
     }
 }

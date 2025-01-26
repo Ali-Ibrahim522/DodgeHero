@@ -22,8 +22,7 @@ namespace Events {
         }
 
         public static int SubscriberCount(int channel = 0) {
-            if (Subscribers.TryGetValue(channel, out var subscriber)) return subscriber.Count;
-            return 0;
+            return Subscribers.TryGetValue(channel, out var subscriber) ? subscriber.Count : 0;
         }
 
         static void Clear() {
