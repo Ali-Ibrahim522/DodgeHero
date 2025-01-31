@@ -13,20 +13,23 @@ public class CrowSystem : MonoBehaviour {
     private int _openSpawnerCount;
     
     private EventProcessor<CrowPerchingEvent> _onCrowPerchingEvent;
-    private EventProcessor<CrowMissedEvent> _onCrowMissedEvent;
+    private EventProcessor<RemoveCrowEvent> _onCrowMissedEvent;
+    private EventProcessor<DeathEventStatsUpdate> _onDeathEventProcessor;
     
     private int _challengeCount;
     private int _activeCrows;
     private int _crowCap;
     private int _spawnRateLowerBound;
     private float _systemTimespan;
-    
+    private bool _disabled;
     void Awake() {
         _onCrowPerchingEvent = new EventProcessor<CrowPerchingEvent>(AddPerchingCrow);
-        _onCrowMissedEvent = new EventProcessor<CrowMissedEvent>(RemoveCrow);
+        _onCrowMissedEvent = new EventProcessor<RemoveCrowEvent>(RemoveCrow);
+        _onDeathEventProcessor = new EventProcessor<DeathEventStatsUpdate>(DisableSystem);
     }
 
     void OnEnable() {
+        _disabled = false;
         _systemTimespan = 0;
         _challengeCount = 0;
         _activeCrows = 0;
@@ -41,12 +44,14 @@ public class CrowSystem : MonoBehaviour {
         }
         _openSpawnerCount = 6;
         EventBus<CrowPerchingEvent>.Subscribe(_onCrowPerchingEvent);
-        EventBus<CrowMissedEvent>.Subscribe(_onCrowMissedEvent);
+        EventBus<RemoveCrowEvent>.Subscribe(_onCrowMissedEvent);
+        EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventProcessor);
     }
 
     void OnDisable() {
         EventBus<CrowPerchingEvent>.Unsubscribe(_onCrowPerchingEvent);
-        EventBus<CrowMissedEvent>.Unsubscribe(_onCrowMissedEvent);
+        EventBus<RemoveCrowEvent>.Unsubscribe(_onCrowMissedEvent);
+        EventBus<DeathEventStatsUpdate>.Unsubscribe(_onDeathEventProcessor);
     }
 
     void Update() {
@@ -61,7 +66,12 @@ public class CrowSystem : MonoBehaviour {
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
             }
         }
-        if (_activeCrows < _crowCap) StartCoroutine(SpawnCrow());
+        if (_activeCrows < _crowCap && !_disabled) StartCoroutine(SpawnCrow());
+    }
+
+    private void DisableSystem() {
+        StopAllCoroutines();
+        _disabled = true;
     }
 
     private float GetNextCrowSpeed() => Mathf.Sqrt(.001f * _challengeCount) + .6f;
@@ -82,10 +92,10 @@ public class CrowSystem : MonoBehaviour {
         if (_spawnRateLowerBound > 1 && _challengeCount % 15 == 0) _spawnRateLowerBound--;
     }
 
-    private void RemoveCrow(CrowMissedEvent crowMissedEventProps) {
-        _activeCrows--;
+    private void RemoveCrow(RemoveCrowEvent removeCrowEventProps) {
         for (int i = 0; i < _perchingCrows.Count; i++) {
-            if (_perchingCrows[i].Channel == crowMissedEventProps.Channel) {
+            if (_perchingCrows[i].Channel == removeCrowEventProps.Channel) {
+                _activeCrows--;
                 SwapSpawnerChannelIndexes(
                     _perchingCrows[i].Channel,
                     _spawnerIndexes[_perchingCrows[i].Channel],

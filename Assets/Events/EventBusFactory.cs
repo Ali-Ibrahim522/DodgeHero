@@ -17,10 +17,13 @@ namespace Events {
             typeof(TargetHitEvent),
             typeof(SpawnCrowEvent),
             typeof(CrowPerchingEvent),
-            typeof(CrowMissedEvent),
+            typeof(RemoveCrowEvent),
             typeof(LoadResultsDataEvent),
             typeof(DeathEventStatsUpdate),
-            typeof(CrowScaredEvent)
+            typeof(CrowScaredEvent),
+            typeof(LoadLeaderboardEvent),
+            typeof(LoginWithScoreEvent),
+            typeof(EndChallengeSystemEvent)
         };
         public static IReadOnlyList<Type> EventBusTypes { get; set; }
         

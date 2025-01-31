@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Events {
     public interface IEvent { }
@@ -34,7 +33,7 @@ namespace Events {
         public GameObject CrowPrefab;
     }
 
-    public struct CrowMissedEvent : IEvent {
+    public struct RemoveCrowEvent : IEvent {
         public int Channel;
     }
 
@@ -47,4 +46,10 @@ namespace Events {
     }
 
     public struct DeathEventStatsUpdate : IEvent {}
+    
+    public struct LoadLeaderboardEvent : IEvent {}
+    
+    public struct LoginWithScoreEvent : IEvent {}
+    
+    public struct EndChallengeSystemEvent : IEvent {}
 }

@@ -1,9 +1,10 @@
+using TMPro;
 using UnityEngine;
 
 namespace Start
 {
-    public class StartView : MonoBehaviour
-    {
-        public void OnPlayButtonPressed() => GameStateManager.Instance.MoveToState(GameStateManager.GameState.LevelSelect);
+    public class StartView : MonoBehaviour {
+        [SerializeField] private TMP_Text displayNameTxt;
+        private void OnEnable() => displayNameTxt.text = GameStateManager.Instance.GetDisplayName();
     }
 }

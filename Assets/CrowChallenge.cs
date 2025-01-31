@@ -64,8 +64,8 @@ public class CrowChallenge : MonoBehaviour {
     }
 
     void DestroyCrow() {
-        if (_crowState != CrowState.Destroyed) {
-            EventBus<CrowMissedEvent>.Publish(new CrowMissedEvent {
+        if (_crowState == CrowState.Perching) {
+            EventBus<RemoveCrowEvent>.Publish(new RemoveCrowEvent {
                 Channel = _channel,
             });
         }
@@ -89,7 +89,7 @@ public class CrowChallenge : MonoBehaviour {
 
     private IEnumerator StartMissedCrow() {
         _crowState = CrowState.Destroyed;
-        EventBus<CrowMissedEvent>.Publish(new CrowMissedEvent {
+        EventBus<RemoveCrowEvent>.Publish(new RemoveCrowEvent {
             Channel = _channel,
         });
         EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {

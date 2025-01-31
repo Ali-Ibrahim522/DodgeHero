@@ -14,18 +14,26 @@ namespace Levels {
         private int _challengeCount;
         private int _maxWait;
         private EventProcessor<TargetHitEvent> _onTargetHitEventProcessor;
+        private EventProcessor<DeathEventStatsUpdate> _onDeathEventProcessor;
         private Camera _camera;
 
         private enum TargetState {
             WaitingToPropose,
             Active,
             WaitingToFinish,
+            Disabled
         }
         private TargetState _targetState;
 
         public void Awake() {
             _camera = Camera.main;
             _onTargetHitEventProcessor = new EventProcessor<TargetHitEvent>(OnTargetHit);
+            _onDeathEventProcessor = new EventProcessor<DeathEventStatsUpdate>(DisableSystem);
+        }
+        
+        private void DisableSystem() {
+            StopAllCoroutines();
+            _targetState = TargetState.Disabled;
         }
 
         void OnEnable() {
@@ -34,10 +42,12 @@ namespace Levels {
             _elapsed = 0;
             _window = 0;
             _maxWait = 5;
+            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventProcessor);
             EventBus<TargetHitEvent>.Subscribe(_onTargetHitEventProcessor);
         }
 
         void OnDisable() {
+            EventBus<DeathEventStatsUpdate>.Unsubscribe(_onDeathEventProcessor);
             EventBus<TargetHitEvent>.Unsubscribe(_onTargetHitEventProcessor);
             foreach (TargetChallenge challenge in challenges) challenge.SetStump();
         }

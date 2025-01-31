@@ -1,7 +1,8 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Levels
 {
@@ -13,20 +14,33 @@ namespace Levels
         private bool _complete;
         public SpriteRenderer attack;
         public List<AttackChallenge> challenges;
+        private EventProcessor<DeathEventStatsUpdate> _onDeathEventProcessor;
+
+        private void Awake() {
+            _onDeathEventProcessor = new EventProcessor<DeathEventStatsUpdate>(DisableSystem);
+        }
         void OnEnable() {
+            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventProcessor);
             _challengeCount = 0;
             SetChallengeProposed();
         }
 
-        void OnDisable() => ResetChallenge();
-    
+        void OnDisable() {
+            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventProcessor);
+            ResetChallenge();
+        }
+
         void Update() {
             _elapsed += Time.deltaTime;
             if (_complete) WaitForWindow();
             else CheckingForInput();
         }
-        
-        // y = 1/√(.01x + 1/3)
+
+        private void DisableSystem() {
+            _complete = true;
+            _window += 5f;
+        }
+
         void SetNewWindow() => _window = 1 / Mathf.Sqrt(.01f * _challengeCount + (1 / 3f));
 
         private void WaitForWindow() {

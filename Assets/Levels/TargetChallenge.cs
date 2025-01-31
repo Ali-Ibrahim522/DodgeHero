@@ -7,14 +7,25 @@ namespace Levels {
         [SerializeField] private GameObject target;
         [SerializeField] private SpriteRenderer targetIndicator;
         [SerializeField] private GameObject stump;
-        public bool done;
+        private EventProcessor<DeathEventStatsUpdate> _onDeathEventProcessor;
         
-        void OnEnable() => done = false;
+        public bool done;
+
+        public void Awake() => _onDeathEventProcessor = new EventProcessor<DeathEventStatsUpdate>(DisableChallenge);
+
+        void OnEnable() {
+            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventProcessor);
+            done = false;
+        }
+
+        void OnDisable() => EventBus<DeathEventStatsUpdate>.Unsubscribe(_onDeathEventProcessor);
 
         void OnMouseDown() {
             if (!done) SetTargetHit();
         }
-
+        
+        private void DisableChallenge() => done = true;
+        
         public void SetTargetHit() {
             EventBus<TargetHitEvent>.Publish(new TargetHitEvent());
             targetIndicator.color = Color.green;
