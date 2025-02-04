@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using PlayFab.ClientModels;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
+using UnityEngine.Networking;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -16,6 +18,7 @@ public class GameStateManager : MonoBehaviour
         ScarecrowEasy,
         ScarecrowMedium,
         ScarecrowHard,
+        Settings
     }
     
     [Serializable]
@@ -29,17 +32,19 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private List<ViewPair> viewPairs;
     [SerializeField] private Image transitionImage;
     [SerializeField] private GameObject transitionObject;
-    [SerializeField] private float transitionSpeed;
-    [SerializeField] private Texture gloabalDefaultPfp;
+    [SerializeField] private Texture2D defaultPfp;
+    private Texture2D _pfp;
     private Dictionary<GameState, GameObject> _views;
     private GameState _lastLevelState;
     private readonly WaitForSeconds _wait = new (.001f);
     private PlayerProfileModel _playerDetails;
     private bool _playerIsGuest;
+    private bool _deletedAccount;
     
     private void Awake() {
         if (Instance != null && Instance != this) Destroy(this); 
         else Instance = this;
+        _deletedAccount = false;
         _playerIsGuest = false;
         transitionObject.SetActive(false);
         _views = new Dictionary<GameState, GameObject>();
@@ -87,16 +92,42 @@ public class GameStateManager : MonoBehaviour
 
     public void StoreLastLevelState(GameState levelState) => _lastLevelState = levelState;
     public void LoadLastLevel() => StartCoroutine(TransitionToState(_lastLevelState));
-    public void SetPlayerDetails(PlayerProfileModel playerDetails) => _playerDetails = playerDetails;
+    public void SetPlayerDetails(PlayerProfileModel playerDetails) {
+        _playerDetails = playerDetails;
+        StartCoroutine(SetPlayerPfp(playerDetails.AvatarUrl));
+    }
+    public IEnumerator SetPlayerPfp(string pfpName) {
+        _playerDetails.AvatarUrl = pfpName;
+        string filePath = $"{Application.streamingAssetsPath}/{pfpName}.jpg";
+        
+        #if !UNITY_WEBGL
+            filePath = "file://" + filePath;
+        #endif
+        
+        using UnityWebRequest uwr = UnityWebRequest.Get(filePath);
+        yield return uwr.SendWebRequest();
+        if (uwr.result == UnityWebRequest.Result.Success) {
+            Texture2D texture = new (2, 2, TextureFormat.BGRA32,false);
+            texture.LoadImage(uwr.downloadHandler.data);
+            _pfp = texture;
+        }
+        else Debug.Log(uwr.error);
+    }
     public void ResetPlayerDetails() {
         _playerIsGuest = false;
         _playerDetails = null;
     }
-    public string GetAvatarUrl() => _playerDetails.AvatarUrl;
     public string GetDisplayName() => _playerIsGuest ? "Guest" : _playerDetails.DisplayName;
+    public void SetDisplayName(string displayName) => _playerDetails.DisplayName = displayName;
     public string GetLastLevelName() => _lastLevelState.ToString();
-    public Texture GetDefaultPfp() => gloabalDefaultPfp;
-    public void SetPlayerAsGuest() => _playerIsGuest = true;
+    public Texture GetPfp() => _pfp;
+    public string GetPfpFileName() => _playerDetails.AvatarUrl;
+    public void SetPlayerAsGuest() {
+        _playerIsGuest = true;
+        _pfp = defaultPfp;
+    }
+    public void SetDeletedAccount(bool deleted) => _deletedAccount = deleted;
+    public bool GetPlayerDeleted() => _deletedAccount;
     public void LogoutGuest() => _playerIsGuest = false;
     public bool IsPlayerGuest() => _playerIsGuest;
 }

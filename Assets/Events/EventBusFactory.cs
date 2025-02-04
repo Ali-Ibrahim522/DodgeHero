@@ -23,7 +23,11 @@ namespace Events {
             typeof(CrowScaredEvent),
             typeof(LoadLeaderboardEvent),
             typeof(LoginWithScoreEvent),
-            typeof(EndChallengeSystemEvent)
+            typeof(PfpSelectedEvent),
+            typeof(LogChangesEvent),
+            typeof(AddChangeEvent),
+            typeof(SaveSettingsEvent),
+            typeof(ExitSettingsEvent)
         };
         public static IReadOnlyList<Type> EventBusTypes { get; set; }
         

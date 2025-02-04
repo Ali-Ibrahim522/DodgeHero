@@ -60,9 +60,7 @@ public class CrowSystem : MonoBehaviour {
             if (_perchingCrows.Count > 0) {
                 ScareNearestCrow();
             } else {
-                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
-                    DeathWait = .75f
-                });
+                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
             }
         }

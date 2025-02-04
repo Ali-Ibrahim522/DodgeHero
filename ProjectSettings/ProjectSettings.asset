@@ -579,7 +579,8 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Standalone: 
+    Standalone: ENABLE_PLAYFABADMIN_API
+    WebGL: ENABLE_PLAYFABADMIN_API
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

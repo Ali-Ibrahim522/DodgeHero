@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
@@ -58,14 +57,14 @@ namespace Levels
                         if (_activeChallenge == i) {
                             good = true;
                         } else {
-                            SetChallengeMissed(false);
+                            SetChallengeMissed();
                             return;
                         }
                     }
                 }
                 if (good) SetChallengeHit();
             } else {
-                SetChallengeMissed(true);
+                SetChallengeMissed();
             }
         }
         
@@ -91,16 +90,17 @@ namespace Levels
             EventBus<HitEvent>.Publish(new HitEvent {
                 Gained = performed
             });
+            _elapsed = 0;
+            _window *= .75f;
         }
 
-        void SetChallengeMissed(bool ranOutOfTime) {
+        void SetChallengeMissed() {
             _complete = true;
-            if (ranOutOfTime) _window += .75f;
+            _elapsed = 0;
+            _window *= .75f;
             challenges[_activeChallenge].SetChallengeMissed(attack);
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
-                DeathWait = _window - _elapsed
-            });
+            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
         }
     }
 }

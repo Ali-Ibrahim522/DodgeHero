@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using LevelSelect;
+using UnityEngine;
 
 namespace Events {
     public interface IEvent { }
@@ -7,9 +9,7 @@ namespace Events {
         public int Gained;
     }
     public struct DeathEvent : IEvent {}
-    public struct MissEventHealthUpdate : IEvent {
-        public float DeathWait;
-    }
+    public struct MissEventHealthUpdate : IEvent {}
     public struct MissEventStatsUpdate : IEvent {}
     
     public struct LevelSelectHeaderChangeEvent : IEvent {}
@@ -50,6 +50,24 @@ namespace Events {
     public struct LoadLeaderboardEvent : IEvent {}
     
     public struct LoginWithScoreEvent : IEvent {}
+
+    public struct PfpSelectedEvent : IEvent {
+        public Texture SelectedTexture;
+        public string FileName;
+    }
     
-    public struct EndChallengeSystemEvent : IEvent {}
+    public struct LogChangesEvent : IEvent {}
+
+    public struct AddChangeEvent : IEvent {
+        public string ChangeLog;
+    }
+    
+    public struct SaveSettingsEvent : IEvent {}
+    
+    public struct ExitSettingsEvent : IEvent {}
+
+    public struct ReportLeaderboardSizeEvent : IEvent {
+        public int LeaderboardSize;
+    }
+    
 }

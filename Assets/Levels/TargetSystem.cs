@@ -60,7 +60,7 @@ namespace Levels {
                 case TargetState.Active:
                     ActiveCheckForClick();
                     _elapsed += Time.deltaTime;
-                    if (_elapsed >= _window && !challenges[_activeChallenge].done) StartCoroutine(SetTargetMissed());
+                    if (_elapsed >= _window && !challenges[_activeChallenge].done) SetTargetMissed();
                     break;
                 case TargetState.WaitingToFinish:
                     WaitingCheckForClick();
@@ -79,15 +79,13 @@ namespace Levels {
         void WaitingCheckForClick() {
             if (Input.GetMouseButtonDown(0) && !Physics2D.GetRayIntersection(_camera.ScreenPointToRay(Input.mousePosition)).collider) {
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
-                    DeathWait = .75f
-                });
+                EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
             }
         }
 
         void ActiveCheckForClick() {
             if (Input.GetMouseButtonDown(0) && !Physics2D.GetRayIntersection(_camera.ScreenPointToRay(Input.mousePosition)).collider) {
-               StartCoroutine(SetTargetMissed(_window - _elapsed));
+               SetTargetMissed();
             }
         }
 
@@ -103,23 +101,24 @@ namespace Levels {
             _targetState = TargetState.Active;
         }
 
-        IEnumerator SetTargetMissed(float waitTime = .75f) {
+        private void SetTargetMissed() {
             challenges[_activeChallenge].SetTargetMissed();
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
-            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
-                DeathWait = waitTime
-            });
-            yield return new WaitForSeconds(waitTime);
+            EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
+            _elapsed = 0;
+            _window *= .75f;
             _targetState = TargetState.WaitingToFinish;
             
         }
 
-        void OnTargetHit() {
+        private void OnTargetHit() {
             _targetState = TargetState.WaitingToFinish;
             int performed = (int)(100 * (1 + (1 - _elapsed / _window)));
             EventBus<HitEvent>.Publish(new HitEvent {
                 Gained = performed
             });
+            _elapsed = 0;
+            _window *= .75f;
         }
         
     }

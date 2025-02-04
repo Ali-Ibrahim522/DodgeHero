@@ -1,11 +1,16 @@
-using System;
 using Events;
 using PlayFab;
+using PlayFab.AdminModels;
 using PlayFab.ClientModels;
 using PlayFab.ProfilesModels;
 using TMPro;
 using UnityEngine;
 using EntityKey = PlayFab.ProfilesModels.EntityKey;
+using GetPlayerProfileRequest = PlayFab.ClientModels.GetPlayerProfileRequest;
+using GetPlayerProfileResult = PlayFab.ClientModels.GetPlayerProfileResult;
+using PlayerProfileViewConstraints = PlayFab.ClientModels.PlayerProfileViewConstraints;
+using SendAccountRecoveryEmailRequest = PlayFab.ClientModels.SendAccountRecoveryEmailRequest;
+using SendAccountRecoveryEmailResult = PlayFab.ClientModels.SendAccountRecoveryEmailResult;
 
 public class LoginView : MonoBehaviour {
     [Header("Field containers")]
@@ -74,9 +79,11 @@ public class LoginView : MonoBehaviour {
         }, OnLoginSuccess, OnLoginError);
     }
     private void OnLoginError(PlayFabError err) {
+        Debug.Log(err.GenerateErrorReport());
         generalInfoText.text = err.Error switch {
             PlayFabErrorCode.InvalidParams => InvalidLoginResponse,
             PlayFabErrorCode.InvalidEmailOrPassword => InvalidLoginResponse,
+            PlayFabErrorCode.AccountDeleted => InvalidLoginResponse,
             _ => UnknownErrorResponse
         };
         EndLoading();
@@ -101,6 +108,11 @@ public class LoginView : MonoBehaviour {
             GameStateManager.Instance.MoveToState(GameStateManager.GameState.Results);
         } else {
             GameStateManager.Instance.MoveToState(GameStateManager.GameState.Start);
+        }
+
+        if (GameStateManager.Instance.GetPlayerDeleted()) {
+            GameStateManager.Instance.SetDeletedAccount(false);
+            EventBus<ExitSettingsEvent>.Publish(new ExitSettingsEvent());
         }
     }
 
@@ -133,6 +145,7 @@ public class LoginView : MonoBehaviour {
         }, OnCreateAccountSuccess, OnCreateAccountError);
     }
     private void OnCreateAccountError(PlayFabError err) {
+        Debug.Log(err.GenerateErrorReport());
         generalInfoText.text = err.Error switch {
             PlayFabErrorCode.NameNotAvailable => UsernameTaken,
             PlayFabErrorCode.InvalidParams => InvalidCreateAccountResponse,
@@ -149,6 +162,9 @@ public class LoginView : MonoBehaviour {
                 Type = suc.EntityToken.Entity.Type
             }
         }, null, null);
+        
+        PlayFabClientAPI.UpdateAvatarUrl(new UpdateAvatarUrlRequest {ImageUrl = "defaultPfp"}, null, null);
+        
         generalInfoText.text = "Account successfully created, Login to proceed";
         SetLoginState(true);
         EndLoading();

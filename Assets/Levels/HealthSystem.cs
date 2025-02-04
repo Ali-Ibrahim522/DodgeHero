@@ -28,13 +28,13 @@ namespace Levels {
                 hearts[_heart++].color = Color.red;
                 if (_heart == hearts.Count) {
                     EventBus<DeathEventStatsUpdate>.Publish(new DeathEventStatsUpdate());
-                    StartCoroutine(WaitedDeath(missEventHealthUpdateProps.DeathWait));
+                    StartCoroutine(WaitedDeath());
                 }
             }
         }
 
-        IEnumerator WaitedDeath(float waitDeath) {
-            yield return new WaitForSeconds(waitDeath);
+        IEnumerator WaitedDeath() {
+            yield return new WaitForSeconds(.75f);
             EventBus<DeathEvent>.Publish(new DeathEvent());
         }
     }

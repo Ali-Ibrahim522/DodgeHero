@@ -92,9 +92,7 @@ public class CrowChallenge : MonoBehaviour {
         EventBus<RemoveCrowEvent>.Publish(new RemoveCrowEvent {
             Channel = _channel,
         });
-        EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate {
-            DeathWait = .75f
-        });
+        EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
         EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
         crowRender.color = Color.red;
         yield return new WaitForSeconds(.75f);

@@ -5,6 +5,8 @@ namespace Start
 {
     public class StartView : MonoBehaviour {
         [SerializeField] private TMP_Text displayNameTxt;
-        private void OnEnable() => displayNameTxt.text = GameStateManager.Instance.GetDisplayName();
+        private void OnEnable() {
+            displayNameTxt.text = GameStateManager.Instance.GetDisplayName();
+        }
     }
 }

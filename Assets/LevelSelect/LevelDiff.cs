@@ -1,4 +1,5 @@
-﻿using Events;
+﻿using System.Collections.Generic;
+using Events;
 using UnityEngine;
 
 namespace LevelSelect {
@@ -24,7 +25,7 @@ namespace LevelSelect {
             if (_selected) return;
             EventBus<LevelSelectDiffChangeEvent>.Publish(new LevelSelectDiffChangeEvent {
                 SelectedLevelPreview = levelPreview,
-                SelectedGameState = levelDiffState
+                SelectedGameState = levelDiffState,
             });
             EventBus<LevelSelectDiffChangeEvent>.Subscribe(_onLevelSelectDiffChange);
             Vector2 newButtonPos = levelPreviewRect.anchoredPosition;
