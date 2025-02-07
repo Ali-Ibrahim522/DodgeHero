@@ -1,37 +1,38 @@
 ﻿using Events;
+using Global;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace PlayerSettings {
     public class ChangeUsernameHandler : MonoBehaviour {
         [SerializeField] private TMP_Text changeUsernameErrorText;
         [SerializeField] private TMP_InputField changeUsernameInputField;
         private string _originalUsername;
+        
         private EventProcessor<LogChangesEvent> _onLogChangesEventProcessor;
+        private EventProcessor<ResetSettingDefaultsEvent> _onResetSettingDefaultsEventProcessor;
         private EventProcessor<SaveSettingsEvent> _onSaveSettingsEventProcessor;
-        private EventProcessor<ExitSettingsEvent> _onExitSettingsEventProcessor;
 
         private void Awake() {
             _onLogChangesEventProcessor = new EventProcessor<LogChangesEvent>(OnLogChanges);
             _onSaveSettingsEventProcessor = new EventProcessor<SaveSettingsEvent>(OnSaveSettings);
-            _onExitSettingsEventProcessor = new EventProcessor<ExitSettingsEvent>(OnExitSettings);
+            _onResetSettingDefaultsEventProcessor = new EventProcessor<ResetSettingDefaultsEvent>(OnExitSettings);
             EventBus<LogChangesEvent>.Subscribe(_onLogChangesEventProcessor);
-            EventBus<ExitSettingsEvent>.Subscribe(_onExitSettingsEventProcessor);
+            EventBus<ResetSettingDefaultsEvent>.Subscribe(_onResetSettingDefaultsEventProcessor);
             OnExitSettings();
         }
 
         private void OnDestroy() {
             EventBus<SaveSettingsEvent>.Unsubscribe(_onSaveSettingsEventProcessor);
             EventBus<LogChangesEvent>.Unsubscribe(_onLogChangesEventProcessor);
-            EventBus<ExitSettingsEvent>.Unsubscribe(_onExitSettingsEventProcessor);
+            EventBus<ResetSettingDefaultsEvent>.Unsubscribe(_onResetSettingDefaultsEventProcessor);
         }
 
         public void OnExitSettings() {
             changeUsernameErrorText.text = "";
-            _originalUsername = GameStateManager.Instance.GetDisplayName();
+            _originalUsername = PlayerAuthManager.GetDisplayName();
             changeUsernameInputField.text = _originalUsername;
         }
 
@@ -54,7 +55,8 @@ namespace PlayerSettings {
         private void OnUpdateUsernameSuccess(UpdateUserTitleDisplayNameResult suc) {
             changeUsernameErrorText.text = "";
             _originalUsername = changeUsernameInputField.text;
-            GameStateManager.Instance.SetDisplayName(changeUsernameInputField.text);
+            PlayerAuthManager.SetDisplayName(changeUsernameInputField.text);
+            EventBus<SaveSettingsEvent>.Unsubscribe(_onSaveSettingsEventProcessor);
         }
         private void OnUpdateUsernameError(PlayFabError err) {
             changeUsernameErrorText.text = err.Error switch {

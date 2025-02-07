@@ -11,18 +11,19 @@ namespace Levels
         private long _score;
         public TMP_Text comboText;
         public TMP_Text scoreText;
-        private EventProcessor<HitEvent> _onHitProcessor;
-        private EventProcessor<MissEventStatsUpdate> _onMissProcessor;
-        private EventProcessor<DeathEventStatsUpdate> _onDeathProcessor;
 
         private int _maxCombo;
         private float _time;
         private int _totalHits;
         
-        void Awake() {
-            _onDeathProcessor = new EventProcessor<DeathEventStatsUpdate>(LoadResultsData);
-            _onHitProcessor = new EventProcessor<HitEvent>(IncreaseScore);
-            _onMissProcessor = new EventProcessor<MissEventStatsUpdate>(ResetCombo);
+        private EventProcessor<DeathEventStatsUpdate> _onDeathEventStatsUpdateProcessor;
+        private EventProcessor<MissEventStatsUpdate> _onMissEventHealthUpdateProcessor;
+        private EventProcessor<HitEvent> _onHitEventProcessor;
+
+        private void Awake() {
+            _onDeathEventStatsUpdateProcessor = new EventProcessor<DeathEventStatsUpdate>(LoadResultsData);
+            _onMissEventHealthUpdateProcessor = new EventProcessor<MissEventStatsUpdate>(ResetCombo);
+            _onHitEventProcessor = new EventProcessor<HitEvent>(IncreaseScore);
         }
         void Update() => _time += Time.deltaTime;
         void OnEnable() {
@@ -33,14 +34,14 @@ namespace Levels
             _totalHits = 0;
             comboText.text = "";
             scoreText.text = "";
-            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathProcessor);
-            EventBus<MissEventStatsUpdate>.Subscribe(_onMissProcessor);
-            EventBus<HitEvent>.Subscribe(_onHitProcessor);
+            EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventStatsUpdateProcessor);
+            EventBus<MissEventStatsUpdate>.Subscribe(_onMissEventHealthUpdateProcessor);
+            EventBus<HitEvent>.Subscribe(_onHitEventProcessor);
         }
         void OnDisable() {
-            EventBus<DeathEventStatsUpdate>.Unsubscribe(_onDeathProcessor);
-            EventBus<MissEventStatsUpdate>.Unsubscribe(_onMissProcessor);
-            EventBus<HitEvent>.Unsubscribe(_onHitProcessor);
+            EventBus<DeathEventStatsUpdate>.Unsubscribe(_onDeathEventStatsUpdateProcessor);
+            EventBus<MissEventStatsUpdate>.Unsubscribe(_onMissEventHealthUpdateProcessor);
+            EventBus<HitEvent>.Unsubscribe(_onHitEventProcessor);
         }
 
         void ResetCombo() {

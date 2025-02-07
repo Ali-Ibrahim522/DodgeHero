@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Events;
+using Global;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,26 +28,30 @@ namespace LevelSelect {
         [SerializeField] private GameObject leaderboardPage2;
 
         private GameStateManager.GameState _selectedGameState;
-        private EventProcessor<LevelSelectDiffChangeEvent> _onLevelSelectChangeProcessor;
-        private EventProcessor<ReportLeaderboardSizeEvent> _onReportLeaderboardSizeProcessor;
         private List<LevelDiffChallengeInfo.ChallengeInfo> _challengeDetails;
         private int _challengeIndex;
         private bool _isGuest;
-        public void Awake() {
-            _onReportLeaderboardSizeProcessor = new EventProcessor<ReportLeaderboardSizeEvent>(RetrieveLeaderboardSize);
-            _onLevelSelectChangeProcessor = new EventProcessor<LevelSelectDiffChangeEvent>(SetSelectedLevel);
+
+        private EventProcessor<LevelSelectDiffChangeEvent> _onLevelSelectDiffChangeEventProcessor;
+        private EventProcessor<ReportLeaderboardSizeEvent> _onReportLeaderboardSizeEventProcessor;
+
+        private void Awake() {
+            _onLevelSelectDiffChangeEventProcessor = new EventProcessor<LevelSelectDiffChangeEvent>(SetSelectedLevel);
+            _onReportLeaderboardSizeEventProcessor = new EventProcessor<ReportLeaderboardSizeEvent>(RetrieveLeaderboardSize);
         }
-        public void OnEnable() {
-            _isGuest = GameStateManager.Instance.IsPlayerGuest();
-            settingsBtn.SetActive(!GameStateManager.Instance.IsPlayerGuest());
-            playerPfp.texture = GameStateManager.Instance.GetPfp();
-            displayName.text = GameStateManager.Instance.GetDisplayName();
-            EventBus<LevelSelectDiffChangeEvent>.Subscribe(_onLevelSelectChangeProcessor);
-            EventBus<ReportLeaderboardSizeEvent>.Subscribe(_onReportLeaderboardSizeProcessor);
+
+        private void OnEnable() {
+            LevelDiffChallengeInfo.LoadChallengeInfoMap();
+            _isGuest = PlayerAuthManager.GetPlayerState() == PlayerAuthManager.PlayerState.Guest;
+            settingsBtn.SetActive(!_isGuest);
+            playerPfp.texture = PlayerAuthManager.GetPfp();
+            displayName.text = PlayerAuthManager.GetDisplayName();
+            EventBus<LevelSelectDiffChangeEvent>.Subscribe(_onLevelSelectDiffChangeEventProcessor);
+            EventBus<ReportLeaderboardSizeEvent>.Subscribe(_onReportLeaderboardSizeEventProcessor);
         }
-        public void OnDisable() {
-            EventBus<LevelSelectDiffChangeEvent>.Unsubscribe(_onLevelSelectChangeProcessor);
-            EventBus<ReportLeaderboardSizeEvent>.Unsubscribe(_onReportLeaderboardSizeProcessor);
+        private void OnDisable() {
+            EventBus<LevelSelectDiffChangeEvent>.Unsubscribe(_onLevelSelectDiffChangeEventProcessor);
+            EventBus<ReportLeaderboardSizeEvent>.Unsubscribe(_onReportLeaderboardSizeEventProcessor);
         }
 
         private void RetrieveLeaderboardSize(ReportLeaderboardSizeEvent reportLeaderboardSizeEventProps) {

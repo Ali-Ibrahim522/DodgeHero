@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Global;
 using PlayFab;
 using PlayFab.AdminModels;
 using PlayFab.ProgressionModels;
@@ -47,10 +48,9 @@ namespace PlayerSettings {
             deleteAccountErrorText.text = "There was an error deleting your account.";
         }
         private void OnDeleteMasterPlayerAccountSuccess(DeleteMasterPlayerAccountResult suc) {
-            GameStateManager.Instance.SetDeletedAccount(true);
             deleteAccountErrorText.text = "";
             PlayFabClientAPI.ForgetAllCredentials();
-            GameStateManager.Instance.ResetPlayerDetails();
+            PlayerAuthManager.DeleteAccount();
             GameStateManager.Instance.MoveToState(GameStateManager.GameState.Login);
         }
 

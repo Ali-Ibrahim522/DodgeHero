@@ -8,22 +8,21 @@ namespace Levels {
     {
         private int _heart;
         public List<SpriteRenderer> hearts;
-        private EventProcessor<MissEventHealthUpdate> _onMissProcessor;
+        
+        private EventProcessor<MissEventHealthUpdate> _onMissEventHealthUpdateProcessor;
 
-        void Awake() {
-            _onMissProcessor = new EventProcessor<MissEventHealthUpdate>(OnMiss);
-        }
+        private void Awake() => _onMissEventHealthUpdateProcessor = new EventProcessor<MissEventHealthUpdate>(OnMiss);
 
         void OnEnable() {
             _heart = 0;
             foreach (SpriteRenderer h in hearts) h.color = Color.white;
-            EventBus<MissEventHealthUpdate>.Subscribe(_onMissProcessor);
+            EventBus<MissEventHealthUpdate>.Subscribe(_onMissEventHealthUpdateProcessor);
         }
         void OnDisable() {
-            EventBus<MissEventHealthUpdate>.Unsubscribe(_onMissProcessor);
+            EventBus<MissEventHealthUpdate>.Unsubscribe(_onMissEventHealthUpdateProcessor);
         }
 
-        public void OnMiss(MissEventHealthUpdate missEventHealthUpdateProps) {
+        private void OnMiss(MissEventHealthUpdate missEventHealthUpdateProps) {
             if (_heart < hearts.Count) {
                 hearts[_heart++].color = Color.red;
                 if (_heart == hearts.Count) {

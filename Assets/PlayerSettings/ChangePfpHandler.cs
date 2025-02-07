@@ -1,4 +1,5 @@
 ﻿using Events;
+using Global;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
@@ -12,37 +13,37 @@ namespace PlayerSettings {
         private RawImage _selectedPfpImage;
         private string _originalPfpFileName;
         private string _selectedPfpFileName;
-        private EventProcessor<PfpSelectedEvent> _onPfpSelectedEventProcessor;
+        
         private EventProcessor<LogChangesEvent> _onLogChangesEventProcessor;
+        private EventProcessor<ResetSettingDefaultsEvent> _onResetSettingDefaultsEventProcessor;
+        private EventProcessor<PfpSelectedEvent> _onPfpSelectedEventProcessor;
         private EventProcessor<SaveSettingsEvent> _onSaveSettingsEventProcessor;
-        private EventProcessor<ExitSettingsEvent> _onExitSettingsEventProcessor;
-
+        
         private void Awake() {
             _selectedPfpImage = GetComponent<RawImage>();
             _onLogChangesEventProcessor = new EventProcessor<LogChangesEvent>(OnLogChanges);
-            _onSaveSettingsEventProcessor = new EventProcessor<SaveSettingsEvent>(OnSaveSettings);
+            _onResetSettingDefaultsEventProcessor = new EventProcessor<ResetSettingDefaultsEvent>(OnExitSettings);
             _onPfpSelectedEventProcessor = new EventProcessor<PfpSelectedEvent>(OnPfpSelected);
-            _onExitSettingsEventProcessor = new EventProcessor<ExitSettingsEvent>(OnExitSettings);
+            _onSaveSettingsEventProcessor = new EventProcessor<SaveSettingsEvent>(OnSaveSettings);
             EventBus<LogChangesEvent>.Subscribe(_onLogChangesEventProcessor);
-            EventBus<ExitSettingsEvent>.Subscribe(_onExitSettingsEventProcessor);
+            EventBus<ResetSettingDefaultsEvent>.Subscribe(_onResetSettingDefaultsEventProcessor);
             OnExitSettings();
         }
 
         private void OnEnable() => EventBus<PfpSelectedEvent>.Subscribe(_onPfpSelectedEventProcessor);
         
-
         private void OnDisable() => EventBus<PfpSelectedEvent>.Unsubscribe(_onPfpSelectedEventProcessor);
 
         private void OnDestroy() {
             EventBus<SaveSettingsEvent>.Unsubscribe(_onSaveSettingsEventProcessor);
             EventBus<LogChangesEvent>.Unsubscribe(_onLogChangesEventProcessor);
-            EventBus<ExitSettingsEvent>.Unsubscribe(_onExitSettingsEventProcessor);
+            EventBus<ResetSettingDefaultsEvent>.Unsubscribe(_onResetSettingDefaultsEventProcessor);
         }
 
         private void OnExitSettings() {
-            _originalPfpFileName = GameStateManager.Instance.GetPfpFileName();
+            _originalPfpFileName = PlayerAuthManager.GetPfpFileName();
             _selectedPfpFileName = _originalPfpFileName;
-            _selectedPfpImage.texture = GameStateManager.Instance.GetPfp();
+            _selectedPfpImage.texture = PlayerAuthManager.GetPfp();
             changePfpErrorText.text = "";
         }
 
@@ -72,7 +73,8 @@ namespace PlayerSettings {
         private void OnUpdateAvatarUrlSuccess(EmptyResponse suc) {
             changePfpErrorText.text = "";
             _originalPfpFileName = _selectedPfpFileName;
-            StartCoroutine(GameStateManager.Instance.SetPlayerPfp(_selectedPfpFileName));
+            PlayerAuthManager.SetPlayerPfp(_selectedPfpFileName);
+            EventBus<SaveSettingsEvent>.Unsubscribe(_onSaveSettingsEventProcessor);
         }
         private void UpdateAvatarUrlError(PlayFabError err) => changePfpErrorText.text = "There was an error updating your pfp, please wait and try again.";
     }

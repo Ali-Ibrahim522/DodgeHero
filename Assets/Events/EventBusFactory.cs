@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Events {
     public static class EventBusFactory {
-        public static IReadOnlyList<Type> EventTypes { get; set; } = new List<Type> {
+        private static IReadOnlyList<Type> EventTypes { get; set; } = new List<Type> {
             typeof(DeathEvent),
             typeof(HitEvent),
             typeof(MissEventHealthUpdate),
@@ -27,9 +27,17 @@ namespace Events {
             typeof(LogChangesEvent),
             typeof(AddChangeEvent),
             typeof(SaveSettingsEvent),
-            typeof(ExitSettingsEvent)
+            typeof(ResetSettingDefaultsEvent),
+            typeof(ReportLeaderboardSizeEvent),
+            typeof(AttackChallengeInputEvent),
+            typeof(DisableSelectedSectionEvent),
+            typeof(LoadVisualSettingEvent),
+            typeof(LoadKeybindSettingEvent),
+            typeof(EnableKeybindModalEvent),
+            typeof(DisableKeybindModalEvent)
         };
-        public static IReadOnlyList<Type> EventBusTypes { get; set; }
+
+        private static IReadOnlyList<Type> EventBusTypes { get; set; }
         
         #if UNITY_EDITOR
             public static PlayModeStateChange PlayModeState { get; set; }
@@ -49,7 +57,7 @@ namespace Events {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize() => EventBusTypes = EventTypes.Select(eventType => typeof(EventBus<>).MakeGenericType(eventType)).ToList();
 
-        public static void ClearAllBuses() {
+        private static void ClearAllBuses() {
             foreach (Type eventBusType in EventBusTypes) eventBusType.GetMethod("Clear", BindingFlags.Static | BindingFlags.NonPublic)?.Invoke(null, null);
         }
     }

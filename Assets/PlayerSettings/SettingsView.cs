@@ -1,16 +1,17 @@
 ﻿using Events;
+using Global;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PlayerSettings {
     public class SettingsView : MonoBehaviour {
         [SerializeField] private GameObject saveConfirmationModal;
         [SerializeField] private TMP_Text changeLog;
+        
         private EventProcessor<AddChangeEvent> _onAddChangeEventProcessor;
 
         private void Awake() => _onAddChangeEventProcessor = new EventProcessor<AddChangeEvent>(AddChange);
-
+        
         private void OnEnable() {
             EventBus<AddChangeEvent>.Subscribe(_onAddChangeEventProcessor);
             OnCancelClicked();
@@ -26,7 +27,7 @@ namespace PlayerSettings {
         }
 
         public void OnBackClicked() {
-            EventBus<ExitSettingsEvent>.Publish(new ExitSettingsEvent());
+            EventBus<ResetSettingDefaultsEvent>.Publish(new ResetSettingDefaultsEvent());
             GameStateManager.Instance.MoveToState(GameStateManager.GameState.LevelSelect);
         }
 
