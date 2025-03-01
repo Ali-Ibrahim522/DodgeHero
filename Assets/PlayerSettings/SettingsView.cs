@@ -1,10 +1,12 @@
-﻿using Events;
+﻿using Audio;
+using Events;
 using Global;
 using TMPro;
 using UnityEngine;
 
 namespace PlayerSettings {
     public class SettingsView : MonoBehaviour {
+        [SerializeField] private MusicData settingsMusic;
         [SerializeField] private GameObject saveConfirmationModal;
         [SerializeField] private TMP_Text changeLog;
         
@@ -14,6 +16,9 @@ namespace PlayerSettings {
         
         private void OnEnable() {
             EventBus<AddChangeEvent>.Subscribe(_onAddChangeEventProcessor);
+            EventBus<PlayMusicEvent>.Publish(new PlayMusicEvent {
+                MusicData = settingsMusic
+            });
             OnCancelClicked();
         }
 

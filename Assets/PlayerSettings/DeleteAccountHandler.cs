@@ -51,6 +51,7 @@ namespace PlayerSettings {
             deleteAccountErrorText.text = "";
             PlayFabClientAPI.ForgetAllCredentials();
             PlayerAuthManager.DeleteAccount();
+            PlayerDataManager.Instance.ResetPlayerData();
             GameStateManager.Instance.MoveToState(GameStateManager.GameState.Login);
         }
 

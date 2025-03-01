@@ -18,11 +18,8 @@ namespace Events {
             typeof(SpawnCrowEvent),
             typeof(CrowPerchingEvent),
             typeof(RemoveCrowEvent),
-            typeof(LoadResultsDataEvent),
             typeof(DeathEventStatsUpdate),
             typeof(CrowScaredEvent),
-            typeof(LoadLeaderboardEvent),
-            typeof(LoginWithScoreEvent),
             typeof(PfpSelectedEvent),
             typeof(LogChangesEvent),
             typeof(AddChangeEvent),
@@ -34,7 +31,11 @@ namespace Events {
             typeof(LoadVisualSettingEvent),
             typeof(LoadKeybindSettingEvent),
             typeof(EnableKeybindModalEvent),
-            typeof(DisableKeybindModalEvent)
+            typeof(DisableKeybindModalEvent),
+            typeof(ReleaseAudioPlayerEvent),
+            typeof(PlayAudioEvent),
+            typeof(PlayMusicEvent),
+            typeof(LoadAuditorySettingEvent)
         };
 
         private static IReadOnlyList<Type> EventBusTypes { get; set; }

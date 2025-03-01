@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Audio;
 using Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,7 +10,8 @@ namespace Levels.Scarecrow {
     public class CrowSystem : MonoBehaviour {
         [SerializeField] private GameObject crowPrefab;
         [SerializeField] private InputActionReference scareCrowKey;
-    
+        [SerializeField] private SoundEffectData perchSoundEffect;
+        [SerializeField] private SoundEffectData flapSoundEffect;
         private List<CrowPerchingEvent> _perchingCrows;
     
         private int[] _spawnerIndexes;
@@ -47,6 +49,8 @@ namespace Levels.Scarecrow {
                 _spawnerIndexes[i] = i;
             }
             _openSpawnerCount = 6;
+            perchSoundEffect.clip.LoadAudioData();
+            flapSoundEffect.clip.LoadAudioData();
             EventBus<CrowPerchingEvent>.Subscribe(_onCrowPerchingEventProcessor);
             EventBus<RemoveCrowEvent>.Subscribe(_onRemoveCrowEventProcessor);
             EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventStatsUpdateProcessor);
@@ -62,6 +66,12 @@ namespace Levels.Scarecrow {
         private void OnScareCrowInput(InputAction.CallbackContext obj) {
             if (_perchingCrows.Count > 0) {
                 ScareNearestCrow();
+                EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                    SoundEffectData = perchSoundEffect
+                });
+                EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                    SoundEffectData = flapSoundEffect,
+                });
             } else {
                 EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
@@ -75,6 +85,8 @@ namespace Levels.Scarecrow {
         private void DisableSystem() {
             StopAllCoroutines();
             _disabled = true;
+            flapSoundEffect.clip.UnloadAudioData();
+            perchSoundEffect.clip.UnloadAudioData();
         }
 
         private float GetNextCrowSpeed() => Mathf.Sqrt(.001f * _challengeCount) + .6f;
@@ -136,6 +148,11 @@ namespace Levels.Scarecrow {
             _spawnerChannels[sci2] = sc1;
         }
 
-        private void AddPerchingCrow(CrowPerchingEvent crowPerchingEventProps) => _perchingCrows.Add(crowPerchingEventProps);
+        private void AddPerchingCrow(CrowPerchingEvent crowPerchingEventProps) {
+            EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                SoundEffectData = flapSoundEffect
+            });
+            _perchingCrows.Add(crowPerchingEventProps);
+        }
     }
 }

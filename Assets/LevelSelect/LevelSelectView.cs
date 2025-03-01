@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Audio;
 using Events;
 using Global;
 using TMPro;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 
 namespace LevelSelect {
     public class LevelSelectView : MonoBehaviour {
+        [SerializeField] private MusicData lvlSelectMusic;
         [SerializeField] private TMP_Text detailHeader;
         [SerializeField] private TMP_Text detailBody;
         [SerializeField] private Image selectedLevelPreview;
@@ -48,6 +50,9 @@ namespace LevelSelect {
             displayName.text = PlayerAuthManager.GetDisplayName();
             EventBus<LevelSelectDiffChangeEvent>.Subscribe(_onLevelSelectDiffChangeEventProcessor);
             EventBus<ReportLeaderboardSizeEvent>.Subscribe(_onReportLeaderboardSizeEventProcessor);
+            EventBus<PlayMusicEvent>.Publish(new PlayMusicEvent {
+                MusicData = lvlSelectMusic
+            });
         }
         private void OnDisable() {
             EventBus<LevelSelectDiffChangeEvent>.Unsubscribe(_onLevelSelectDiffChangeEventProcessor);
@@ -57,6 +62,8 @@ namespace LevelSelect {
         private void RetrieveLeaderboardSize(ReportLeaderboardSizeEvent reportLeaderboardSizeEventProps) {
             detailsBtn.interactable = true;
             nextChallengeBtn.interactable = reportLeaderboardSizeEventProps.LeaderboardSize > 5;
+            nextChallengeBtnObj.SetActive(true);
+            prevChallengeBtnObj.SetActive(true);
         }
 
         public void OnDetailsClicked() {
@@ -74,10 +81,9 @@ namespace LevelSelect {
             leaderboardContainer.SetActive(true);
             leaderboardPage1.SetActive(true);
             leaderboardPage2.SetActive(false);
-            nextChallengeBtnObj.SetActive(!_isGuest);
-            prevChallengeBtnObj.SetActive(!_isGuest);
+            nextChallengeBtnObj.SetActive(false);
+            prevChallengeBtnObj.SetActive(false);
             prevChallengeBtn.interactable = false;
-            nextChallengeBtn.interactable = true;
         }
         
         public void OnNextClicked() {

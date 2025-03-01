@@ -1,4 +1,5 @@
-﻿using Global;
+﻿using Audio;
+using Global;
 using Levels.Scarecrow;
 using UnityEngine;
 
@@ -31,16 +32,7 @@ namespace Events {
     public struct RemoveCrowEvent : IEvent {
         public int Channel;
     }
-    public struct LoadResultsDataEvent : IEvent {
-        public Sprite ResultsSprite;
-        public long Score;
-        public int MaxCombo;
-        public int TotalHits;
-        public float Time;
-    }
     public struct DeathEventStatsUpdate : IEvent {}
-    public struct LoadLeaderboardEvent : IEvent {}
-    public struct LoginWithScoreEvent : IEvent {}
     public struct PfpSelectedEvent : IEvent {
         public Texture SelectedTexture;
         public string FileName;
@@ -61,4 +53,17 @@ namespace Events {
         public string KeyName;
     }
     public struct DisableKeybindModalEvent : IEvent {}
+    public struct ReleaseAudioPlayerEvent : IEvent {
+        public SoundEffectPlayer SoundEffectPlayer;
+    }
+    public struct PlayAudioEvent : IEvent {
+        public SoundEffectData SoundEffectData;
+    }
+
+    public struct PlayMusicEvent : IEvent {
+        public MusicData MusicData;
+    }
+    
+    public struct LoadAuditorySettingEvent : IEvent {}
+    
 }

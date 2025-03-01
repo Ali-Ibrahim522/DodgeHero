@@ -107,7 +107,7 @@ namespace Leaderboard {
                 }
             }, result => {
                 displayName.text = result.PlayerProfile.DisplayName;
-                if (gameObject.activeSelf) StartCoroutine(SetRankPfp(result.PlayerProfile.AvatarUrl, pfp));
+                if (gameObject.activeInHierarchy) StartCoroutine(SetRankPfp(result.PlayerProfile.AvatarUrl, pfp));
             }, OnPlayFabError);
         }
         private void OnPlayFabError(PlayFabError err) {
@@ -117,9 +117,9 @@ namespace Leaderboard {
         private IEnumerator SetRankPfp(string pfpUrl, RawImage pfp) {
             string filePath = $"{Application.streamingAssetsPath}/{pfpUrl}.jpg";
     
-#if !UNITY_WEBGL
-            filePath = "file://" + filePath;
-#endif
+            #if !UNITY_WEBGL
+                        filePath = "file://" + filePath;
+            #endif
     
             using UnityWebRequest uwr = UnityWebRequest.Get(filePath);
             yield return uwr.SendWebRequest();

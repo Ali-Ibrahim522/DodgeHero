@@ -1,3 +1,4 @@
+using Audio;
 using Events;
 using Global;
 using PlayFab;
@@ -5,6 +6,7 @@ using PlayFab.ClientModels;
 using PlayFab.ProfilesModels;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using EntityKey = PlayFab.ProfilesModels.EntityKey;
 using GetPlayerProfileRequest = PlayFab.ClientModels.GetPlayerProfileRequest;
 using GetPlayerProfileResult = PlayFab.ClientModels.GetPlayerProfileResult;
@@ -14,6 +16,11 @@ using SendAccountRecoveryEmailResult = PlayFab.ClientModels.SendAccountRecoveryE
 
 namespace Login {
     public class LoginView : MonoBehaviour {
+        [SerializeField] private Image showPasswordButtonImage; 
+        [SerializeField] private Sprite hidePasswordIcon;
+        [SerializeField] private Sprite showPasswordIcon;
+        [SerializeField] private MusicData loginMusic;
+        
         [Header("Field containers")]
         [SerializeField] private GameObject loginContainer;
         [SerializeField] private GameObject emailObjects;
@@ -40,28 +47,41 @@ namespace Login {
     
         [Header("loading text")]
         [SerializeField] private GameObject loadingText;
-
+        
         private const string UnknownErrorResponse = "There was an error logging you in, Please wait and try again.";
         private const string InvalidLoginResponse = "Entered email and/or password is incorrect.";
         private const string InvalidCreateAccountResponse = "1 or more fields are invalid.";
         private const string UsernameTaken = "Entered username is taken";
         private const string SendEmailResponse = "Password recovery has been sent to this email if connected to an account.";
-        private bool _guestToPlayer;
+        
+        private bool _showPassword;
+
         private void OnEnable() {
-            _guestToPlayer = false;
+            _showPassword = false;
+            UpdatePasswordVisibility();
             bool isPlayerGuest = PlayerAuthManager.GetPlayerState() == PlayerAuthManager.PlayerState.Guest;
+            if (!isPlayerGuest) {
+                EventBus<PlayMusicEvent>.Publish(new PlayMusicEvent {
+                    MusicData = loginMusic
+                });
+            }
             continueAsGuestButton.SetActive(!isPlayerGuest);
             returnToResultsButton.SetActive(isPlayerGuest);
             EndLoading();
             SetLoginState();
         }
 
-        private void OnDisable() {
-            if (_guestToPlayer) {
-                EventBus<LoginWithScoreEvent>.Publish(new LoginWithScoreEvent());
-            }
+        public void ChangePasswordVisibility() {
+            _showPassword = !_showPassword;
+            UpdatePasswordVisibility();
         }
 
+        private void UpdatePasswordVisibility() {
+            showPasswordButtonImage.sprite = _showPassword ? hidePasswordIcon : showPasswordIcon;
+            passwordField.contentType = _showPassword ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
+            passwordField.Select();
+        }
+        
         public void OnNewAccountClicked() => SetNewAccountState();
 
         public void OnGuestLoginClicked() {
@@ -105,12 +125,9 @@ namespace Login {
             PlayerAuthManager.PlayerState fromState = PlayerAuthManager.GetPlayerState();
             PlayerAuthManager.Login(suc.PlayerProfile);
             PlayerDataManager.Instance.RetrievePlayerData();
-            if (fromState == PlayerAuthManager.PlayerState.Guest) {
-                _guestToPlayer = true;
-                GameStateManager.Instance.MoveToState(GameStateManager.GameState.Results);
-            } else {
-                GameStateManager.Instance.MoveToState(GameStateManager.GameState.Start);
-            }
+            GameStateManager.Instance.MoveToState(fromState == PlayerAuthManager.PlayerState.Guest
+                ? GameStateManager.GameState.Results
+                : GameStateManager.GameState.Start);
         }
 
         public void OnForgotPasswordClicked() => SetForgotPasswordState();

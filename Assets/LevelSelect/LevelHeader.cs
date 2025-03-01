@@ -11,7 +11,7 @@ namespace LevelSelect {
 
         private void Awake() => _onLevelSelectHeaderChangeEventProcessor = new EventProcessor<LevelSelectHeaderChangeEvent>(DisableLevelDiffs);
         
-        public void OnEnable() {
+        public void Start() {
             _selected = false;
             if (isDefault) OnLevelHeaderClicked();
         }

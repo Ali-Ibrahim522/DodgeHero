@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Audio;
 using Events;
 using Global;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Levels.Scarecrow
         private bool _complete;
         [SerializeField] private SpriteRenderer attack;
         [SerializeField] private List<AttackChallenge> challenges;
+        [SerializeField] private SoundEffectData attackSound;
         private Color _proposedColor;
         private Color _hitColor;
         private Color _missedColor;
@@ -33,6 +35,7 @@ namespace Levels.Scarecrow
             EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventStatsUpdateEventProcessor);
             foreach (AttackChallenge challenge in challenges) challenge.EnableAttackChallenge();
             _challengeCount = 0;
+            attackSound.clip.LoadAudioData();
             SetChallengeProposed();
         }
 
@@ -51,6 +54,7 @@ namespace Levels.Scarecrow
         private void DisableSystem() {
             _complete = true;
             _window += 5f;
+            attackSound.clip.UnloadAudioData();
         }
 
         void SetNewWindow() => _window = 1 / Mathf.Sqrt(.01f * _challengeCount + (1 / 3f));
@@ -95,6 +99,9 @@ namespace Levels.Scarecrow
             int performed = (int)(100 * (1 + (1 - _elapsed / _window)));
             _complete = true;
             challenges[_activeChallenge].SetChallengeHit(attack, _hitColor);
+            EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                SoundEffectData = attackSound
+            });
             EventBus<HitEvent>.Publish(new HitEvent {
                 Gained = performed
             });
@@ -107,6 +114,9 @@ namespace Levels.Scarecrow
             _elapsed = 0;
             _window *= .75f;
             challenges[_activeChallenge].SetChallengeMissed(attack, _missedColor);
+            EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                SoundEffectData = attackSound
+            });
             EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
             EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
         }

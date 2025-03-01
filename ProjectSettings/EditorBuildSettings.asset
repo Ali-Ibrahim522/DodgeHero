@@ -6,8 +6,32 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/Managers.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Login/LoginScene.unity
+    guid: 9fe3125fb53547142b03664cbde80265
+  - enabled: 1
+    path: Assets/Start/StartScene.unity
+    guid: b1fa553008992574cad7f1decc4543a0
+  - enabled: 1
+    path: Assets/LevelSelect/LevelSelectScene.unity
+    guid: faafbbfeaf220cb48a20c2bee14bec30
+  - enabled: 1
+    path: Assets/Results/ResultsScene.unity
+    guid: 1589aea67900d284ba27d7bab83c78e8
+  - enabled: 1
+    path: Assets/Levels/Scarecrow/ScarecrowEasyScene.unity
+    guid: b14125eeb2998d8458729c3b3d631985
+  - enabled: 1
+    path: Assets/Levels/Scarecrow/ScarecrowMediumScene.unity
+    guid: 7807fc86c2273f74ebef9bc0ab949c5e
+  - enabled: 1
+    path: Assets/Levels/Scarecrow/ScarecrowHardScene.unity
+    guid: 18e4d1333908eee49a620c8a2ac8f4b9
+  - enabled: 1
+    path: Assets/PlayerSettings/SettingsScene.unity
+    guid: 6c9c6a6764f5893449fead980a83aeb7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 149a06b3661da47478dc1fd86af3c8d3, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -50,6 +50,13 @@ namespace PlayerSettings {
                     EscapedDataObject = PlayerDataManager.Instance.keybinds.SaveBindingOverridesAsJson()
                 });
             }
+            if (EventBus<LoadAuditorySettingEvent>.SubscriberCount() > 0) {
+                EventBus<LoadAuditorySettingEvent>.Publish(new LoadAuditorySettingEvent());
+                updatedData.Add(new SetObject {
+                    ObjectName = PlayerDataManager.AuditorySettingsName,
+                    EscapedDataObject = JsonUtility.ToJson(PlayerDataManager.Instance.auditory)
+                });
+            }
             if (updatedData.Count == 0) return;
             PlayFabDataAPI.SetObjects(new SetObjectsRequest {
                 Entity = new EntityKey {

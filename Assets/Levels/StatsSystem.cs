@@ -1,4 +1,5 @@
 ﻿using Events;
+using Global;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,7 +52,15 @@ namespace Levels
             comboText.text = $"{_combo}x";
         }
 
-        void LoadResultsData() => EventBus<LoadResultsDataEvent>.Publish(new LoadResultsDataEvent {
+        /*void LoadResultsData() => EventBus<LoadResultsDataEvent>.Publish(new LoadResultsDataEvent {
+            ResultsSprite = resultsSplash,
+            Score = _score,
+            MaxCombo = _maxCombo,
+            TotalHits = _totalHits,
+            Time = _time
+        });*/
+        
+        void LoadResultsData() => SessionScoreManager.StoreScore(new SessionScore {
             ResultsSprite = resultsSplash,
             Score = _score,
             MaxCombo = _maxCombo,

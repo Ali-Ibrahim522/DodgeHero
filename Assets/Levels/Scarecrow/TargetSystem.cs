@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audio;
 using Events;
 using Global;
 using UnityEngine;
@@ -11,12 +12,16 @@ namespace Levels.Scarecrow {
     public class TargetSystem : MonoBehaviour {
         [SerializeField] private InputActionReference hitTargetKey;
         [SerializeField] private Transform clickHitFadeScale;
+        [SerializeField] private SoundEffectData targetAttempt;
+        [SerializeField] private SoundEffectData targetSuccess;
+        [SerializeField] private SoundEffectData targetStarted;
+        [SerializeField] private SoundEffectData targetDone;
         public List<TargetChallenge> challenges;
         private float _elapsed;
         private float _window;
         private int _activeChallenge;
         private int _challengeCount;
-        private int _maxWait;
+        private float _maxWait;
         private Camera _camera;
         private Color _proposedColor;
         private Color _hitColor;
@@ -39,6 +44,10 @@ namespace Levels.Scarecrow {
         
         private void DisableSystem() {
             StopAllCoroutines();
+            targetDone.clip.UnloadAudioData();
+            targetAttempt.clip.UnloadAudioData();
+            targetSuccess.clip.UnloadAudioData();
+            targetStarted.clip.UnloadAudioData();
             _targetState = TargetState.Disabled;
         }
 
@@ -48,11 +57,14 @@ namespace Levels.Scarecrow {
             _missedColor = PlayerDataManager.Instance.visuals.missed;
             _targetState = TargetState.WaitingToFinish;
             _challengeCount = 0;
-            _elapsed = 0;
-            _window = 0;
-            _maxWait = 5;
+            _maxWait = 6f;
             hitTargetKey.action.started += ActiveCheckForClick;
             EventBus<DeathEventStatsUpdate>.Subscribe(_onDeathEventStatsUpdateProcessor);
+            StartCoroutine(StartNewTarget());
+            targetDone.clip.LoadAudioData();
+            targetAttempt.clip.LoadAudioData();
+            targetSuccess.clip.LoadAudioData();
+            targetStarted.clip.LoadAudioData();
         }
 
         void OnDisable() {
@@ -68,10 +80,16 @@ namespace Levels.Scarecrow {
             Collider2D hit = Physics2D.GetRayIntersection(_camera.ScreenPointToRay(Input.mousePosition)).collider;
             if (hit) {
                 if (challenges[_activeChallenge].OnTargetHit()) {
-                    challenges[_activeChallenge].SetTargetHit(_hitColor);
                     OnTargetHit();
+                    EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                        SoundEffectData = targetSuccess
+                    });
+                    challenges[_activeChallenge].SetTargetHit(_hitColor);
                 }
             } else {
+                EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                    SoundEffectData = targetAttempt
+                });
                 EventBus<MissEventStatsUpdate>.Publish(new MissEventStatsUpdate());
                 EventBus<MissEventHealthUpdate>.Publish(new MissEventHealthUpdate());
             }
@@ -86,6 +104,9 @@ namespace Levels.Scarecrow {
                 case TargetState.WaitingToFinish:
                     _elapsed += Time.deltaTime;
                     if (_elapsed >= _window) {
+                        EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                            SoundEffectData = targetDone
+                        });
                         challenges[_activeChallenge].SetStump();
                         StartCoroutine(StartNewTarget());
                     }
@@ -99,6 +120,9 @@ namespace Levels.Scarecrow {
         IEnumerator StartNewTarget() {
             _targetState = TargetState.WaitingToPropose;
             yield return new WaitForSeconds(Random.Range(Math.Max(_maxWait - 3, 0), _maxWait));
+            EventBus<PlayAudioEvent>.Publish(new PlayAudioEvent {
+                SoundEffectData = targetStarted
+            });
             _activeChallenge = Random.Range(0, challenges.Count);
             challenges[_activeChallenge].SetTargetProposed(_proposedColor);
             SetNewWindow();
@@ -115,7 +139,6 @@ namespace Levels.Scarecrow {
             _elapsed = 0;
             _window *= .75f;
             _targetState = TargetState.WaitingToFinish;
-            
         }
 
         private void OnTargetHit() {
@@ -127,6 +150,5 @@ namespace Levels.Scarecrow {
             _elapsed = 0;
             _window *= .75f;
         }
-        
     }
 }

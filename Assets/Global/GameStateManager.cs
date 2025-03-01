@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Eflatun.SceneReference;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Global {
@@ -22,7 +24,7 @@ namespace Global {
         [Serializable]
         public struct ViewPair {
             public GameState state;
-            public GameObject view;
+            public SceneReference view;
         }
 
         private GameState _currentState;
@@ -30,8 +32,7 @@ namespace Global {
         [SerializeField] private List<ViewPair> viewPairs;
         [SerializeField] private Image transitionImage;
         [SerializeField] private GameObject transitionObject;
-        [SerializeField] private Texture2D defaultPfp;
-        private Dictionary<GameState, GameObject> _views;
+        private Dictionary<GameState, SceneReference> _views;
         private GameState _lastLevelState;
         private readonly WaitForSeconds _wait = new (.001f);
     
@@ -39,23 +40,25 @@ namespace Global {
             if (Instance != null && Instance != this) Destroy(this); 
             else Instance = this;
             transitionObject.SetActive(false);
-            _views = new Dictionary<GameState, GameObject>();
+            _views = new Dictionary<GameState, SceneReference>();
             foreach (ViewPair pair in viewPairs) {
-                pair.view.SetActive(false);
                 _views[pair.state] = pair.view;
             }
             _currentState = GameState.Login;
-            _views[_currentState].SetActive(true);
         }
+
+        private void Start() => SceneManager.LoadSceneAsync(_views[_currentState].Path, LoadSceneMode.Additive);
 
         public void MoveToState(GameState nextState) => StartCoroutine(TransitionToState(nextState));
 
         private IEnumerator TransitionToState(GameState nextState) {
             transitionObject.SetActive(true);
             yield return StartCoroutine(FadeOut());
-            _views[_currentState].SetActive(false);
-            _views[nextState].SetActive(true);
+            AsyncOperation unload = SceneManager.UnloadSceneAsync(_views[_currentState].Path);
+            AsyncOperation load = SceneManager.LoadSceneAsync(_views[nextState].Path, LoadSceneMode.Additive);
             _currentState = nextState;
+            yield return new WaitWhile(() => !unload.isDone || !load.isDone);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(_views[nextState].Path));
             yield return StartCoroutine(FadeIn());
             transitionObject.SetActive(false);
         }

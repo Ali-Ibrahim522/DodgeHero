@@ -1,8 +1,9 @@
-﻿using Global;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class BasicButtonController : MonoBehaviour {
-        [SerializeField] private GameStateManager.GameState nextState;
-        
-        public void OnClickToNextState() => GameStateManager.Instance.MoveToState(nextState);
+namespace Global {
+        public class BasicButtonController : MonoBehaviour {
+                [SerializeField] private GameStateManager.GameState nextState;
+                
+                public void OnClickToNextState() => GameStateManager.Instance.MoveToState(nextState);
+        }
 }
